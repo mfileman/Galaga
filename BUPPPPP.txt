@@ -1,0 +1,89 @@
+
+float [] xpos = new float[40];
+float [] ypos = new float[40];
+
+PImage enemy_1, enemy_2, enemy_3, enemy_4;
+
+enemy[] e = new enemy[40];
+
+boolean defaultPos = false;
+boolean attack = false;
+
+void setup()
+{
+  enemy_1 = loadImage("enemy_1.png");
+  enemy_2 = loadImage("enemy_2.png");
+  enemy_3 = loadImage("enemy_3.png");
+  enemy_4 = loadImage("enemy_4.png");
+  size(500,644);
+  
+  for(int i = 0; i < e.length; i++)
+     e[i] = new enemy();
+}
+
+void draw()
+{
+  background(0);
+  
+  if(!defaultPos)
+     defaultPOS();
+     
+  if((int)random(40) == 20)
+    attack = true;
+  else
+    attack = false;
+  
+  for(int i = 0; i < ypos.length; i++)
+  {
+    e[i].animate(xpos[i],ypos[i]);
+  }
+}
+
+void defaultPOS()
+{
+  int count = 0;
+  int count2 = 1;
+  while(count < 40)
+  {
+  for(int i = 0; i < 4; i++)
+      ypos[i+count] = 42*count2;
+      count+=4;
+      count2++;
+  }
+  
+  count = 0;
+  while(count < 40)
+  {
+  for(int i = 0; i < 10; i++)
+      xpos[i+count] = 42*(i+1);
+      count+=10;
+  }
+
+  defaultPos = true;
+}
+
+void mouseClicked()
+{
+  float distance = dist(mouseX,mouseY,xpos[0],ypos[0]);
+  int xcount = 0;
+  int ycount = 0;
+  
+  for(int x = 0; x < xpos.length; x++)
+  {
+    for(int y = 0; y < ypos.length; y++)
+    {
+      float bup = dist(mouseX, mouseY, xpos[x], ypos[y]);
+      
+        if(bup < distance)
+        {
+           distance = bup;
+           xcount = x;
+           ycount = y;
+        }
+    }
+  }
+  
+   if((mouseX > xpos[xcount]-5 || mouseX < xpos[xcount]+5) &&
+      (mouseY > ypos[ycount]-5 || mouseY < ypos[ycount]+5))
+          xpos[xcount] = -100;
+}
