@@ -1,7 +1,3 @@
-//Enemies are displaying and by clicking them, they disappear.
-//The click will be replaced by the bullet position and the disappearance with be
-//smoother with an explosion animation.
-//Error: sometimes more than one click is necessary, gotta fix that.
 import processing.sound.*;
 SoundFile pew;
 SoundFile click;
@@ -9,17 +5,17 @@ SoundFile enter;
 SoundFile hurt;
 SoundFile song;
 
+color bg = color(0);
 float [] enemyPos = new float[80];  //(x,y)
 //Made it twice the ammount of enemies so that each enemy has 2 values here.
 //The first 40 values are the Y axis, the other half is the X.
 
 
 PImage enemy_1, enemy_2, enemy_3, enemy_4;
-//PImage explosion_1,explosion_2,explosion_3,explosion_4;
 PImage[] explosion = new PImage[71];
 PImage ship, bullet;
 PFont font;
-boolean game, info, start, lost;
+boolean game, info, start, loseScreen;
 boolean songg = true;
 int score, choice;
 
@@ -28,7 +24,7 @@ stars[] s = new stars[100];
 Ship player = new Ship();
 Bullet[] bullets;
 
-boolean keyPressed = false, up = false, right = false, left = false;
+boolean keyPressed = false, upKey = false, right = false, left = false;
 
 boolean defaultPos = false;
 boolean crossPos = false;
@@ -78,23 +74,27 @@ int enemySpeed = 2;
 void keyPressed() { 
   player.setMove(keyCode, true);
   
-  if((keyCode == UP || key == 'w') && game == true ) { //sets which keys control which movement
+  if((keyCode == UP || key == 'w' || key == ' ') && game == true ) { //sets which keys control which movement
     pew.play();
-    up = true;
+    upKey = true;
   }
   
   if(keyCode == UP && start == true) {
+    stroke(bg);
     triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
-    fill(0);
+    
+    fill(bg);
+    stroke(bg);
     triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
     choice = 1;
     click.play();
      }
      
   if(keyCode == DOWN && start == true) {
-   
+   stroke(bg);
     triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
-    fill(0);
+    fill(bg);
+    stroke(bg);
     triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
     choice = 2;
     click.play();
@@ -118,19 +118,22 @@ void keyPressed() {
     enter.play();
   }
   if(keyCode == ' ' && choice == 2 && start == false && info == true) {
-    background(0);
+    background(bg);
+    stroke(bg);
     triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
     info = false;
     game = false;
     start = true;
     enter.play();
   }
-  if(keyCode == ' ' && lost == true) {
+  if(keyCode == ENTER && loseScreen == true) { 
+  //if the player hits enter after they lost (directions say hit enter to return to menu screen)
     info = false;
     game = false;
     start = true;
-    lost = false;
-    background(0);
+    loseScreen = false;
+    background(bg);
+    stroke(bg);
     triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
     enter.play();
     initMenu();
@@ -159,11 +162,12 @@ void setup()
   level = 1;
   
   textAlign(CENTER);
-  background(0);
+  background(bg);
   size(560, 800);
   font = loadFont("Arcade-Classic-48.vlw");
  
  initMenu();
+ stroke(bg);
  triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
   
   
@@ -218,40 +222,27 @@ void draw()
     
     songg = false;
   }
-  if(player.lives == 0) {
-    loseScreen();
-    level = 1;
-    
-    song.stop();
-    songg = true;
-    
-    defaultPos = false;
-    crossPos = false;
-    diamondPos = false;
-    circlePos = false;
-    heartPos = false;
-  }
-   } //<>// //<>// //<>//
-//At the moment is used to test the enemies dying.
-//By clicking the enemy they disappear.
+ } //<>//
+/*
+* Initializes game state, is continuously called
+*/
 
 void initGame() {
-  background(0);
+  background(bg);
   
-  player.move();
-  player.drawPlayer();
+  player.move(); //continuously calls/ allows the player move function to be continously updated
+  player.drawPlayer();//continously updates
   
-   
-   if(up) {
+   //IF THE PLAYER HITS THE "UP" key (indicating they want to shoot a bullet)
+   if(upKey) {
     
     Bullet bullet = bullets[x];
-    //for(Bullet bullet: bullets) {
       if( !bullet.getOnScreen() ) { //if not being used / offscreen
       bullet.first = true;
         do{
           bullet.drawBullet(player);    //update + draw the bullet
           bullet.updateBullet(); 
-          bullet.drawBullet(player);    //update + draw the bullet
+          //bullet.drawBullet(player);    //update + draw the bullet
         }while(!collisionDetection1(bullet) && bullet.posY > 0);  //is hasnt hit something and its still on screen 
       if(x<bullets.length-1)
         x++;
@@ -261,7 +252,7 @@ void initGame() {
     //}
      //<>//
     
-    up = false;
+    upKey = false;
 
   } //end of if up
   
@@ -294,13 +285,6 @@ void initGame() {
   //Makes the enemies move
   if(attack)
   {
-  //Not sure if I should keep the X axis movement since it results in ALOT of empty
-  // Space. Maybe increase the number of enemies.
-  
-  //if(enemyPos[40+attEnemy] < mouseX && enemyPos[40+attEnemy] != -100)
-  //   enemyPos[40+attEnemy]+=2;
-  //else
-  //   enemyPos[40+attEnemy]-=2;
   
   if(enemyPos[attEnemy] < player.getPosY())
      enemyPos[attEnemy]+=enemySpeed;
@@ -346,7 +330,7 @@ void initGame() {
   //MAIN PART. Enemies are displayed.
   for(int i = 0; i < (e.length); i++)
   {
-   e[i].animate(enemyPos[40+i], enemyPos[i], i, attack);
+   e[i].animate(enemyPos[40+i], enemyPos[i], i);
    
    for(int j = 0; j < aMob.length; j++)
    {
@@ -364,14 +348,11 @@ void initGame() {
   }
   drawScoreboard();
 }
+
+
 public boolean collisionDetection1(Bullet obj)
 {
-  //used to check mouse position and compare it to enemy position. To be deleted.
-  //float sad = mouseX;
-  //float fds = mouseY;
-  //print(sad, fds);
   
-  //The distance needs to be smoother. Having a hard time with that
   for(int i = 0; i < (enemyPos.length)/2; i++)
   {
     if(enemyPos[40+i]-20 < obj.posX && obj.posX < enemyPos[40+i]+20)
@@ -395,72 +376,113 @@ public boolean collisionDetection1(Bullet obj)
   obj.hasHit = false;
   return false;
 }
+
+/*
+* Initial menu screen
+* game info, called when game initially starts 
+* & after lose screen to be able to start a new game
+*/
 void initMenu() {
   score = 0;
-  if(info == false) {
-textFont(font, 50);
-text("Galaga", width/2, 250);
-textFont(font, 32);
-text("1 PLAYER", width/2, height/2);
-text("INSTRUCTIONS", width/2+60, height/1.74);
-textFont(font, 18);
-text("TM 2018 Alex Madison Sam LTD.", width/2, height/1.33); 
-text("AMS CO. LTD. IS LICENSED", width/2, height/1.143);
-text("BY CAP3032 OF AMERICA INC.", width/2, height/1.09);
-textFont(font, 25);
+  if(!info) {
+    textFont(font, 50);
+    text("Galaga", width/2, 250);
+    textFont(font, 32);
+    text("1 PLAYER", width/2, height/2);
+    text("INSTRUCTIONS", width/2+60, height/1.74);
+    textFont(font, 18);
+    text("TM 2018 Madison LTD.", width/2, height/1.33); 
+    text("MADISON LTD. IS LICENSED", width/2, height/1.143);
+    text("BY A LADY OF AMERICA INC.", width/2, height/1.09);
+    textFont(font, 25);
   }
 }
+/*
+* updateLives will continuously be called in the draw function and  
+* will call loseScreen() WHEN LIVES == 0
+* (loseScreen will RESET GAME STATE to be able to start a new game)
+*/
 void updateLives() {
   if(player.lives == 0) {
-    lost = true;
+    loseScreen();
   }
 }
+
+/*
+* YOU LOSE SCREEN
+* Screen displays when player lives reach 0
+* & resets game state 
+* sets loseScreen bool to TRUE (signal that the player is ON the lose screen)
+*/
 void loseScreen() {
-  lost = true;
+  loseScreen = true;
+  
+  level = 1;
+  
+  song.stop();
+  songg = true;
+  
+  defaultPos = false;
+  crossPos = false;
+  diamondPos = false;
+  circlePos = false;
+  heartPos = false;
+    
+    
   game = false;
   start = false;
   info = false;
-  background(0);
+  background(bg);
   textSize(15);
   player.lives = 3;
   text("Sorry, you lost!", width/2, height/2);
-  text("Press Space to Return to Menu.", width/2, 420);
+  text("Press Enter to Return to Menu.", width/2, 420);
 }
 
+
+/*
+* Draws stats at the top of the screen during gameplay
+* inluding LEVEL , HIGH SCORE of current game, and the remaining LIVES of the spaceship 
+*/
 void drawScoreboard() {
   textSize(20);
-  fill(255, 0, 0);
-  text("LEVEl", width/7, height/20);
+  fill(255,0,0); //red
+  text("LEVEL", width/7, height/20);
   text(level, width/7, (height/20)+40);
   text("HI-SCORE", width/2, height/20);
   text(score, width/2, (height/20)+40);
   text("LIVES", width/1.16, height/20);
   text(player.lives, 480, (height/20)+40);
-  fill(255);
+  fill(255); //white
 }
 
+
+/*
+* How to play menu option screen
+* displays information about how to play (controls, objective, etc.)
+*/
 void drawInfo() {
-background(0);
-text("How to play:", width/2, 100);
-
-textSize(14);
-text("Use the arrow keys or WASD to move...", width/2, 200);
-text("And the up/W key to fire!", width/2, 220);
-
-image(ship, 230, 320, 80, 80);
-image(bullet, 255, 250, 30, 40);
-
-textSize(15);
-text("Try to dodge the enemy bullets!", width/2, 450);
-text("If you run out of lives, you lose!", width/2, 470);
-fill(255, 0, 0);
-text("lives", 332.5, 470);
-fill(255);
-text("Destroy all the enemies to advance!", width/2, 550);
-text("Good luck!", width/2, 570);
-
-textSize(17);
-text("Press Space to return to menu", width/2, 700);
+  background(bg);
+  text("How to play:", width/2, 100);
+  
+  textSize(14);
+  text("Use the arrow keys or WASD to move...", width/2, 200);
+  text("And the up/W key to fire!", width/2, 220);
+  
+  image(ship, 239, 350, 80, 80);
+  image(bullet, 263, 250, 30, 40);
+  
+  textSize(15);
+  text("Try to dodge the enemy bullets!", width/2, 450);
+  text("If you run out of lives, you lose!", width/2, 470);
+  fill(255, 0, 0); //red
+  text("lives", 332.5, 470);
+  fill(255);//white
+  text("Destroy all the enemies to advance!", width/2, 550);
+  text("Good luck!", width/2, 570);
+  
+  textSize(17);
+  text("Press Space to return to menu", width/2, 700);
 
 
 }

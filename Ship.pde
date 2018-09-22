@@ -1,14 +1,15 @@
 class Ship {
   
   private int lives;           //instance variables
-  boolean isLeft, isRight, isUp, isDown;
-  int posX, posY;
+  boolean isLeft, isRight;
+  int posX;
+  final int posY;
   
   
   public Ship(){ //CONSTRUCTOR
     lives = 3;
     posX = 225;
-    posY = 730;
+    posY = 730; //should never change! were limiting our players movement to 1D
   }
   
   public int getPosX(){ //STD getter methods, self explanatory
@@ -35,9 +36,14 @@ class Ship {
     }
   }
   
-  public void drawPlayer() { //draws the players ship at the ship objects location
+  /*
+  * is called on a ship object & 
+  * draws the players ship at the ship objects location
+  */
+  
+  public void drawPlayer() { 
     ship.resize(0,50);
-    image(ship,this.posX,this.posY);
+    image(ship,this.posX,this.posY); //hardcoded because were limiting the players ability to move in 2D (y pos should never change)
   }
   
   

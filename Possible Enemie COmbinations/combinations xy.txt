@@ -44,7 +44,7 @@ x	y
 440	280	39
 
 
-Move eerything one to the right with the cross
+Move everything one to the right with the cross
 Cross
 y	x
 40	240

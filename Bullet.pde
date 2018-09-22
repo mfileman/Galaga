@@ -45,23 +45,18 @@ class Bullet
     }
     
   
-    public void drawBullet(Ship player){ //draws the bullet img
+    public void drawBullet(Ship player){ 
       this.onScreen = true;
       this.hasHit = false;
       
-      //displays the bullet as if the ship were shooting it
-      this.posX = player.getPosX() + 13; 
+      this.posX = player.getPosX(); 
       
       if(this.first){ 
-      //only places it infront of the ship if 
-      //its the first instance of it being draw, will edit placement over this initial placement
-        posY = player.getPosY() - 100;
+        posY = player.posY-40;
         this.first = false;
       }
       fill(255);
       ellipse(this.posX,this.posY, 3,3);
-      //bullet.resize(0,30); 
-      //image(bullet, this.posX, this.posY); //couldnt get the bullet image to work consistently
     }
 
 }

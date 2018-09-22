@@ -19,30 +19,8 @@ class enemy
   }
 
   //It makes the enemies move in a circular motion.
-  void animate(float x, float y, int i, boolean att)
+  void animate(float x, float y, int i)
   {
-    //  fill(0);
-    //  rect(x,y,30,30);
-
-    //if(att)
-    //{
-    //  if(dist(x,y,width/2,600) > 10)
-    //    {
-    //      for(int a = 0; i <= (int)dist(x,y,width/2,600)/5; a++)
-    //      {
-    //        if(x > width/2)
-    //           x--;
-    //        else
-    //          x++;
-
-    //        if(y > 600)
-    //           y--;
-    //        else
-    //           y++;
-    //      }
-    //    }
-    //}
-    //else
     {
       if (time < 40)
         y-=10;
