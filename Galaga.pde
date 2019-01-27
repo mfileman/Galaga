@@ -1,10 +1,3 @@
-import processing.sound.*;
-SoundFile pew;
-SoundFile click;
-SoundFile enter;
-SoundFile hurt;
-SoundFile song;
-
 color bg = color(0);
 float [] enemyPos = new float[80];  //(x,y)
 //Made it twice the ammount of enemies so that each enemy has 2 values here.
@@ -13,18 +6,17 @@ float [] enemyPos = new float[80];  //(x,y)
 
 PImage enemy_1, enemy_2, enemy_3, enemy_4;
 PImage[] explosion = new PImage[71];
-PImage ship, bullet;
+PImage ship;//, bullet;
 PFont font;
 boolean game, info, start, loseScreen;
-boolean songg = true;
-int score, choice;
+int score, choice = 0;
 
 enemy[] e = new enemy[40];
 stars[] s = new stars[100];
 Ship player = new Ship();
-Bullet[] bullets;
+//Bullet[] bullets;
 
-boolean keyPressed = false, upKey = false, right = false, left = false;
+boolean keyPressed = false;
 
 boolean defaultPos = false;
 boolean crossPos = false;
@@ -66,99 +58,17 @@ int enemySpeed = 2;
      heartPos = false;
      enemySpeed *= 2;
     }
-     
-  }
-
-
-
-void keyPressed() { 
-  player.setMove(keyCode, true);
-  
-  if((keyCode == UP || key == 'w' || key == ' ') && game == true ) { //sets which keys control which movement
-    pew.play();
-    upKey = true;
-  }
-  
-  if(keyCode == UP && start == true) {
-    stroke(bg);
-    triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
-    
-    fill(bg);
-    stroke(bg);
-    triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
-    choice = 1;
-    click.play();
-     }
-     
-  if(keyCode == DOWN && start == true) {
-   stroke(bg);
-    triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
-    fill(bg);
-    stroke(bg);
-    triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
-    choice = 2;
-    click.play();
-  }
-  
-  if(keyCode == ENTER && choice == 1 && start == true) {
-    println("wow");
-    game = true;
-    info = false;
-    start = false;
-    enter.play();
-  }
-  
-  
-  if(keyCode == ENTER && choice == 2 && start == true) {
-    println("ayy");
-    drawInfo();
-    info = true;
-    game = false;
-    start = false;
-    enter.play();
-  }
-  if(keyCode == ' ' && choice == 2 && start == false && info == true) {
-    background(bg);
-    stroke(bg);
-    triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
-    info = false;
-    game = false;
-    start = true;
-    enter.play();
-  }
-  if(keyCode == ENTER && loseScreen == true) { 
-  //if the player hits enter after they lost (directions say hit enter to return to menu screen)
-    info = false;
-    game = false;
-    start = true;
-    loseScreen = false;
-    background(bg);
-    stroke(bg);
-    triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
-    enter.play();
-    initMenu();
-  }
-}
-
-void keyReleased() {
-  player.setMove(keyCode, false);
 }
 
 
 void setup()
 {
- 
-  pew = new SoundFile(this, "pew.mp3");
-
-  click = new SoundFile(this, "click.wav");
-  enter = new SoundFile(this, "enter.wav");
-  song = new SoundFile(this, "song.mp3");
   
   game = false;
   info = false;
   start = true;
   
-  choice = 1;
+  choice = 0;
   level = 1;
   
   textAlign(CENTER);
@@ -171,14 +81,14 @@ void setup()
  triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
   
   
-  bullets = new Bullet[100000]; //as many bullets as possible so u dont run out
-  for(int i = 0; i < bullets.length; i++){
-    bullets[i] = new Bullet();
-  }
+  //bullets = new Bullet[100000]; //as many bullets as possible so u dont run out
+  //for(int i = 0; i < bullets.length; i++){
+  //  bullets[i] = new Bullet();
+  //}
 
 
   ship = loadImage("spaceship1.png"); //loads the ship + bullet images
-  bullet = loadImage("bullet.png");
+  //bullet = loadImage("bullet.png");
   
   
   //For some reason I cant load imges in the enemy file.
@@ -204,58 +114,81 @@ void setup()
 }
 int x = 0;
 
+
+/*
+* NAVIGATION CONTROLLER
+* configures the pages and direction of navigation 
+* when mouse is pressed on different pages
+*/
+void navController(){
+   if(start) {
+        initMenu();
+        //print("start");
+      }
+      if(info) {
+        initInfo();
+        //print("info");
+        if(keyCode == ENTER){
+          start = false;
+          initMenu();
+        }
+      }
+      if(game) {
+        initGame();
+      }
+      if(loseScreen){
+      if(keyCode == ENTER){
+          //loseScreen = false;
+          initMenu();
+        }
+      }
+      
+       
+}//end of nav controller
+
+void mouseClicked(){
+//print("CLICKED!!!!!");
+  if(start)
+  {
+    if(choice == 1)
+    {
+      //start = false;
+      initGame();
+    }
+    else if(choice == 2)
+    {
+     // start = false;
+      initInfo();
+    }
+  }
+  if(game)
+    player.playerShoot();
+}
+
+void mouseMoved(){
+  if(game)
+    player.posX = mouseX;
+}
+
 void draw()
-{
+{  
   drawScoreboard();
   updateLives();
-  if(start == true) {
-    initMenu();
-  }
-  else if(info == true) {
-    drawInfo();
-  }
-  else if(game == true) {
-    initGame();
-    
-    if(songg == true)
-    song.play();
-    
-    songg = false;
-  }
- } //<>//
+  navController();
+ 
+ }
+
+
 /*
 * Initializes game state, is continuously called
 */
-
 void initGame() {
+  game = true;
+  info = false; start = false; loseScreen = false;
   background(bg);
   
-  player.move(); //continuously calls/ allows the player move function to be continously updated
   player.drawPlayer();//continously updates
-  
-   //IF THE PLAYER HITS THE "UP" key (indicating they want to shoot a bullet)
-   if(upKey) {
-    
-    Bullet bullet = bullets[x];
-      if( !bullet.getOnScreen() ) { //if not being used / offscreen
-      bullet.first = true;
-        do{
-          bullet.drawBullet(player);    //update + draw the bullet
-          bullet.updateBullet(); 
-          //bullet.drawBullet(player);    //update + draw the bullet
-        }while(!collisionDetection1(bullet) && bullet.posY > 0);  //is hasnt hit something and its still on screen 
-      if(x<bullets.length-1)
-        x++;
-      else
-       x = 0;  
-    }
-    //}
-     //<>//
-    
-    upKey = false;
-
-  } //end of if up
-  
+   //<>//
   //Chooses a random enemy to start moving
   int attEnemy = (int)random(39);
   
@@ -290,8 +223,8 @@ void initGame() {
      enemyPos[attEnemy]+=enemySpeed;
   else
      enemyPos[attEnemy]-=enemySpeed;
-  
-  if(dist(enemyPos[40+attEnemy], enemyPos[attEnemy], player.posX+20, player.posY+25) < 40)
+ 
+  if(dist(enemyPos[40+attEnemy], enemyPos[attEnemy], mouseX+20, 755) < 40)
     {
       
       player.lives--;
@@ -350,63 +283,95 @@ void initGame() {
 }
 
 
-public boolean collisionDetection1(Bullet obj)
-{
-  
-  for(int i = 0; i < (enemyPos.length)/2; i++)
-  {
-    if(enemyPos[40+i]-20 < obj.posX && obj.posX < enemyPos[40+i]+20)
-    {
-      if(enemyPos[i]-20 < obj.posY && obj.posY < enemyPos[i]+20)
-      {
-        imageMode(CENTER);
-        for(int j = 0; j < explosion.length; j++)
-        {
-          image(explosion[j], enemyPos[40+i], enemyPos[i]);
-        }
-        
-         enemyPos[40+i] = -100;
-         obj.hasHit = true;
-        
-         score += 100;
-         return true;
-      }
-    }
-  }
-  obj.hasHit = false;
-  return false;
-}
+
+
+
+
+
+
+
+
+
 
 /*
-* Initial menu screen
+* INITAL MENU SCREEN
 * game info, called when game initially starts 
 * & after lose screen to be able to start a new game
 */
 void initMenu() {
+   game = false; info = false; start = true; loseScreen = false;
   score = 0;
-  if(!info) {
-    textFont(font, 50);
-    text("Galaga", width/2, 250);
-    textFont(font, 32);
-    text("1 PLAYER", width/2, height/2);
-    text("INSTRUCTIONS", width/2+60, height/1.74);
-    textFont(font, 18);
-    text("TM 2018 Madison LTD.", width/2, height/1.33); 
-    text("MADISON LTD. IS LICENSED", width/2, height/1.143);
-    text("BY A LADY OF AMERICA INC.", width/2, height/1.09);
-    textFont(font, 25);
-  }
+  if(!info){   
+      background(bg);
+      textFont(font, 50);
+      text("Galaga", width/2, 250);
+      textFont(font, 32);
+      text("1 PLAYER", width/2, height/2);
+      text("INSTRUCTIONS", width/2+60, height/1.74);
+      textFont(font, 18);
+      text("TM 2018 Madison LTD.", width/2, height/1.33); 
+      text("MADISON LTD. IS LICENSED", width/2, height/1.143);
+      text("BY A LADY OF AMERICA INC.", width/2, height/1.09);
+      textFont(font, 25);
+      
+      
+      //stroke(bg);
+      
+       if(start && mouseY > height/2 -30 && mouseY < height/2 +5 && mouseX < 3*width/4 && mouseX > width/4 ) { //condition for 1 player
+        stroke(bg);
+        triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
+        
+        fill(bg);
+        stroke(bg);
+        triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
+        choice = 1;
+      }
+       
+      else if( start && mouseY > height/2 +30  && mouseY < height/2 + 60  && mouseX > width/4 ) { //condition for information
+       stroke(bg);
+        triangle(140, (height/1.74)-13, 120, (height/1.74)-22, 120, (height/1.74)-4);
+        fill(bg);
+        stroke(bg);
+        triangle(140, (height/2)-13, 120, (height/2)-22, 120, (height/2)-4);
+        choice = 2;
+      }
+    }
 }
+
 /*
-* updateLives will continuously be called in the draw function and  
-* will call loseScreen() WHEN LIVES == 0
-* (loseScreen will RESET GAME STATE to be able to start a new game)
+* INFORMATION / HOW TO PLAY SCREEN
+* How to play menu option screen
+* displays information about how to play (controls, objective, etc.)
 */
-void updateLives() {
-  if(player.lives == 0) {
-    loseScreen();
+void initInfo() {
+  game = false; info = true; start = false; loseScreen = false;
+  choice = 0;
+  if(!start){
+    background(bg);
+    text("How to play:", width/2, 90);
+    
+    textSize(14);
+    text("Move with your mouse...", width/2, 200);
+    text("and click to fire!", width/2, 220);
+    
+    image(ship, 239, 350, 80, 80);
+    //image(bullet, 263, 250, 30, 40);
+    
+    textSize(15);
+    text("Try to dodge the enemy bullets!", width/2, 450);
+    text("If you run out of lives, you lose!", width/2, 470);
+    fill(255, 0, 0); //red
+    text("lives", 332.5, 470);
+    fill(255);//white
+    text("Destroy all the enemies to advance!", width/2, 550);
+    text("Good luck!", width/2, 570);
+    
+    textSize(17);
+    text("Press enter to", width/2, 700);
+    text("return to menu", width/2, 730);
   }
 }
+
 
 /*
 * YOU LOSE SCREEN
@@ -416,11 +381,10 @@ void updateLives() {
 */
 void loseScreen() {
   loseScreen = true;
+  game = false; info = false; start = false;
   
   level = 1;
-  
-  song.stop();
-  songg = true;
+ 
   
   defaultPos = false;
   crossPos = false;
@@ -428,10 +392,6 @@ void loseScreen() {
   circlePos = false;
   heartPos = false;
     
-    
-  game = false;
-  start = false;
-  info = false;
   background(bg);
   textSize(15);
   player.lives = 3;
@@ -440,8 +400,17 @@ void loseScreen() {
 }
 
 
+
+
+
+
+
+
+
+
+
 /*
-* Draws stats at the top of the screen during gameplay
+* Draws stats at the top of the screen DURING GAMEPLAY
 * inluding LEVEL , HIGH SCORE of current game, and the remaining LIVES of the spaceship 
 */
 void drawScoreboard() {
@@ -449,7 +418,7 @@ void drawScoreboard() {
   fill(255,0,0); //red
   text("LEVEL", width/7, height/20);
   text(level, width/7, (height/20)+40);
-  text("HI-SCORE", width/2, height/20);
+  text("SCORE", width/2, height/20);
   text(score, width/2, (height/20)+40);
   text("LIVES", width/1.16, height/20);
   text(player.lives, 480, (height/20)+40);
@@ -458,31 +427,14 @@ void drawScoreboard() {
 
 
 /*
-* How to play menu option screen
-* displays information about how to play (controls, objective, etc.)
+* updateLives will continuously be called in the draw function and  
+* will call loseScreen() WHEN LIVES == 0
+* (loseScreen will RESET GAME STATE to be able to start a new game)
 */
-void drawInfo() {
-  background(bg);
-  text("How to play:", width/2, 100);
-  
-  textSize(14);
-  text("Use the arrow keys or WASD to move...", width/2, 200);
-  text("And the up/W key to fire!", width/2, 220);
-  
-  image(ship, 239, 350, 80, 80);
-  image(bullet, 263, 250, 30, 40);
-  
-  textSize(15);
-  text("Try to dodge the enemy bullets!", width/2, 450);
-  text("If you run out of lives, you lose!", width/2, 470);
-  fill(255, 0, 0); //red
-  text("lives", 332.5, 470);
-  fill(255);//white
-  text("Destroy all the enemies to advance!", width/2, 550);
-  text("Good luck!", width/2, 570);
-  
-  textSize(17);
-  text("Press Space to return to menu", width/2, 700);
-
-
+void updateLives() {
+  if(player.lives == 0) {
+    loseScreen = true;
+    game = false; info = false; start = false;
+    loseScreen();
+  }
 }

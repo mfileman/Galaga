@@ -1,11 +1,17 @@
 class Bullet
 {
-
-    private int posX, posY; //instance variables
+  
+/*This class defines the bullet object that 
+will be created upon the command for a ship shooting*/
+  
+  /* PRIVATE INSTANCE VARIABLES */
+    private int posX, posY;
     private boolean hasHit;
     private boolean onScreen;
     private boolean first;    
     
+    
+    /*CONSTRUCTOR */
     public Bullet() {           //CONSTRUCTOR
       this.hasHit = false;
       this.onScreen = false;
@@ -14,7 +20,9 @@ class Bullet
       this.first = true;
     }
     
-    public int getPosX(){          //STD GETTER METHODS, self explanatory
+    /* GETTER METHODS */
+    
+    public int getPosX(){
       return this.posX;
     }
     public int getPosY(){
@@ -27,16 +35,20 @@ class Bullet
       return this.onScreen;
     }
     
-    public void hitSomething(){ //for collision detection
+    
+    public void hitSomething(){
       this.hasHit = true;
     }
+    
+    /* UPDATE BULLET METHOD
+    this method edits the position of the bullet
+    when the bullet position reaches a certain threshhold it will
+    delete it / move it offscreen*/
      //<>//
-    public void updateBullet(){  //movement of the bullet
-       this.posY-=5; //edits the objects position, will be drawn at the 
-       //print(this.posY+ " " +  this + "\n"); //for debugging purposes
+    public void updateBullet(){  
+       this.posY-=5;;
        
        if(this.posY == 0) {
-         // "delete" the bullet, (move offscreen)
          this.posX = 1000;
          this.hasHit = true;
          this.onScreen = false;
@@ -45,11 +57,11 @@ class Bullet
     }
     
   
-    public void drawBullet(Ship player){ 
+    public void drawBullet(Ship player) {
       this.onScreen = true;
       this.hasHit = false;
-      
-      this.posX = player.getPosX(); 
+       
+     this.posX = player.getPosX(); 
       
       if(this.first){ 
         posY = player.posY-40;

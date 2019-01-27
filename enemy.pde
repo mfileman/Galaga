@@ -1,4 +1,4 @@
-class enemy
+ class enemy
 {
   float time;
   enemyBullet b = new enemyBullet();
